@@ -379,9 +379,9 @@ class RollNumberWindow(QWidget):
         """Fetch data from FastAPI server and display it in a new window."""
         roll_number = self.roll_number_input.text()
         cid = self.clsid.text()
-        if roll_number.isdigit():
+        if roll_number and cid:
             response = requests.post(url + "/eiscore", json={"roll_no": roll_number, "clsid": cid})
-            if(response.status_code==200):
+            if(response.status_code==200 and response.json()):
                 student_data = response.json()
                 self.display_student_data(student_data)
             else:
@@ -424,7 +424,7 @@ class StudentDataWindow(QWidget):
         self.table = QTableWidget(self)
         self.table.setRowCount(len(student_data))
         self.table.setColumnCount(len(student_data[0]))
-        self.table.setHorizontalHeaderLabels(["⏰ Time", "📊 EI Score"])
+        self.table.setHorizontalHeaderLabels(["⏰ Time", "📊 EI Score","Status"])
         self.table.setColumnWidth(0, 200)
         self.table.setColumnWidth(1, 200)
         self.table.setColumnWidth(2, 300)
