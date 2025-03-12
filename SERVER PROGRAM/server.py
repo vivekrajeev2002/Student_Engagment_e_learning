@@ -4,7 +4,7 @@ import mysql.connector
 import asyncio
 from collections import defaultdict
 app = FastAPI()
-score=[]
+
 cid = '99'
 link = 'www.googlemeet.com'
 db_config = {
@@ -23,15 +23,16 @@ conn = get_db_connection()
 #    TEACHER REGISTRATION
 
 class TeacherReg(BaseModel):
-    password:str
-    email_id:str
     name:str
-    ints:str
+    email:str
+    password:str
+    
+    
 
 @app.post("/teacher/reg")
 def teacher_reg(store:TeacherReg):
     cursor = conn.cursor()
-    query = "INSERT INTO teacher VALUES("+'"'+store.email_id+'",'+'"'+store.password+'",'+'"'+store.name+'"'+")"
+    query = "INSERT INTO teacher VALUES("+'"'+store.email+'",'+'"'+store.password+'",'+'"'+store.name+'"'+")"
     cursor.execute(query)
     conn.commit()
     cursor.close()
@@ -124,10 +125,6 @@ async def ei_score(data: eiscore):
     return temp
 
 
-
-
-
-
 class StudentReg(BaseModel):
     name:str
     roll_no:str
@@ -161,7 +158,9 @@ class LinkInput(BaseModel):
 def Linkinput(Data:LinkInput):
     global link
     link=Data.link
-   
+    print(link)
+    global cid 
+    cid = Data.clsid
 
 
 
