@@ -6,7 +6,72 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 import requests
-tr_name=""
+from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
+from PyQt6.QtGui import QColor
+class WelcomeScreen(QWidget):
+    """ Welcome Screen """
+    def __init__(self):
+        super().__init__()
+        
+        # Set window size and style
+        self.setFixedSize(w, h)
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e2f;  /* Dark navy background */
+                color: white;
+                font-family: Arial, sans-serif;
+            }
+        """)
+
+        layout = QVBoxLayout()
+        layout.setSpacing(30)  # More spacing between elements
+
+        # Title label with modern styling
+        self.label = QLabel(" Student Engagement Detection - Teacher Application", self)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setStyleSheet("""
+            font-size: 36px;
+            font-weight: bold;
+            color: #4CAF50;
+        """)
+
+        # Login button with a modern flat design
+        self.login_button = QPushButton("🔑 Login")
+        self.login_button.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                font-size: 22px;
+                font-weight: bold;
+                padding: 20px 40px;
+                border-radius: 20px;
+                border: 2px solid #45a049;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:pressed {
+                background-color: #387a3f;
+            }
+        """)
+        self.login_button.clicked.connect(self.go_to_login)
+
+        # Adding widgets to the layout
+        layout.addStretch()
+        layout.addWidget(self.label)
+        layout.addWidget(self.login_button, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addStretch()
+
+        self.setLayout(layout)
+
+    def go_to_login(self):
+        self.st = LoginScreen()  # Assuming LoginScreen is defined
+        self.close()
+        self.st.show()
+
+
+
+tr_name="kh"
 url = "http://127.0.0.1:8000"
 w=1000
 h=700
@@ -14,25 +79,66 @@ class WelcomeScreen(QWidget):
     """ Welcome Screen """
     def __init__(self):
         super().__init__()
-        layout = QVBoxLayout()
-        self.setFixedSize(w,h)
-        self.label = QLabel("Welcome to the Student Registration System!", self)
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter) 
-        self.label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        
+        # Set window size and style
+        self.setFixedSize(w, h)
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e2f;  /* Dark navy background */
+                color: white;
+                font-family: Arial, sans-serif;
+            }
+        """)
 
-        self.login_button = QPushButton("Login")
+        layout = QVBoxLayout()
+        layout.setSpacing(30)  # More spacing between elements
+
+        # Title label with modern, glowing effect
+        self.label = QLabel("🎓 Student Engagement Detection - Teacher Application 🎓", self)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setStyleSheet("""
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 8px #4CAF50;  /* Soft glow effect */
+        """)
+
+        # Login button with a sleek, futuristic style
+        self.login_button = QPushButton("Next")
+        self.login_button.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                font-size: 22px;
+                font-weight: bold;
+                padding: 20px 40px;
+                border-radius: 20px;
+                border: 2px solid #45a049;
+                transition: background-color 0.3s ease, transform 0.2s ease;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+                transform: scale(1.05);  /* Slight pop effect */
+            }
+            QPushButton:pressed {
+                background-color: #387a3f;
+                transform: scale(0.98);  /* Click effect */
+            }
+        """)
         self.login_button.clicked.connect(self.go_to_login)
 
+        # Adding widgets to the layout
+        layout.addStretch()
         layout.addWidget(self.label)
-        layout.addWidget(self.login_button)
+        layout.addWidget(self.login_button, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addStretch()
+
         self.setLayout(layout)
 
     def go_to_login(self):
-        #self.stacked_widget.setCurrentIndex(1)  # Switch to login screen
-        self.st= LoginScreen()
+        self.st = LoginScreen()  # Assuming LoginScreen is defined
         self.close()
         self.st.show()
-
 class LoginScreen(QWidget):
     """ Login Screen """
     def __init__(self):
@@ -112,6 +218,90 @@ class TeacherRegistration(QWidget):
         else:
             QMessageBox.warning(self, "Error", "All fields are required!")
 
+class RollNumberWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Enter Roll Number")
+        self.setFixedSize(400, 200)
+
+        layout = QVBoxLayout()
+
+        # Roll number input field
+        self.clsid=QLineEdit()
+        self.roll_number_input = QLineEdit()
+        self.roll_number_input.setPlaceholderText("Enter Roll Number")
+        layout.addWidget(self.roll_number_input)
+
+        # Submit button to fetch student data
+        self.submit_button = QPushButton("Submit")
+        self.submit_button.clicked.connect(self.fetch_data)
+        layout.addWidget(self.submit_button)
+        layout.addWidget(self.clsid)
+        # Label to show the result or error
+        self.result_label = QLabel("")
+        layout.addWidget(self.result_label)
+
+        self.setLayout(layout)
+
+    def fetch_data(self):
+        """Fetch data from FastAPI server and display it in a new window."""
+        roll_number = self.roll_number_input.text()
+        cid = self.clsid.text()
+        if not roll_number.isdigit():
+            self.result_label.setText("Please enter a valid roll number.")
+            return
+
+        try:
+            # Request data from the FastAPI server
+            response = requests.post(url+"/eiscore",json={"roll_no":roll_number,"clsid":cid})
+            response.raise_for_status()  # Raise an exception for 4xx or 5xx errors
+
+            student_data = response.json()
+            self.display_student_data(student_data)
+
+        except requests.exceptions.RequestException as e:
+            self.result_label.setText(f"Error: {str(e)}")
+
+    def display_student_data(self, student_data):
+        """Display the student data in a new window."""
+        self.student_window = StudentDataWindow(student_data)
+        self.student_window.show()
+
+
+class StudentDataWindow(QWidget):
+    def __init__(self, student_data):
+        super().__init__()
+
+        self.setWindowTitle("Student Data")
+        self.setFixedSize(600, 400)
+        print(student_data)
+        layout = QVBoxLayout()
+
+        # Create QTableWidget to display the student data
+        self.table = QTableWidget(self)
+        
+        # Set the number of rows and columns based on the student_data
+        self.table.setRowCount(len(student_data))  # Number of rows
+        self.table.setColumnCount(len(student_data[0]))  # Number of columns (based on the first sublist)
+
+        # Set the table headers
+        self.table.setHorizontalHeaderLabels(["Time", "EI Score"])
+
+        # Loop through the data and insert it into the table
+        for row_index, row_data in enumerate(student_data):
+            for col_index, cell_data in enumerate(row_data):
+                self.table.setItem(row_index, col_index, QTableWidgetItem(str(cell_data)))  # Ensure the data is a string
+        
+        # Add the table to the layout (only once, not inside the loop)
+        layout.addWidget(self.table)
+
+        # Set the layout for the window
+        self.setLayout(layout)  # Set the layout once after all widgets have been added
+    
+
+
+
 class TeacherScreen(QWidget):
     def __init__(self):
         super().__init__()
@@ -178,7 +368,8 @@ class TeacherScreen(QWidget):
 
     # Placeholder for the view result function
     def viewresult(self):
-        print("Viewing result")
+        self.res = RollNumberWindow()
+        self.res.show()
 
 class StudentRegistrationScreen(QWidget):
     """ Stuwdent Registration Screen """
