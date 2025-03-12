@@ -5,7 +5,8 @@ import asyncio
 from collections import defaultdict
 app = FastAPI()
 score=[]
-link = 'www.test.com'
+cid = '99'
+link = 'www.googlemeet.com'
 db_config = {
     "host": "localhost",
     "user": "root",
@@ -32,9 +33,9 @@ def teacher_reg(store:TeacherReg):
     cursor = conn.cursor()
     query = "INSERT INTO teacher VALUES("+'"'+store.email_id+'",'+'"'+store.password+'",'+'"'+store.name+'"'+")"
     cursor.execute(query)
-    cursor.close()
     conn.commit()
-
+    cursor.close()
+    
 
 #     TEACHER LOGIN 
 
@@ -98,8 +99,8 @@ class AvgScoreInput(BaseModel):
 @app.post("/send_avg_score")
 def receive_avg_score(data: AvgScoreInput):
     cursor = conn.cursor()
-    query = "INSERT INTO table1 VALUES (%s, %s, %s)"
-    cursor.execute(query, (data.time, data.ei, data.eng))
+    query = "INSERT INTO table"+data.rollno+" VALUES (%s, %s, %s,%s)"
+    cursor.execute(query,(data.time, data.ei, data.eng,cid))
     conn.commit()
     cursor.close()
     print("Average score received")
@@ -140,18 +141,26 @@ def teacher_reg(store:StudentReg):
     cursor.execute(query)
     conn.commit()
     cursor.close()
+    cursor = conn.cursor()
+    query= "CREATE TABLE table"+store.roll_no+"(time varchar(50),ei varchar(50),eng varchar(50),clsid varchar(40))"
+    cursor.execute(query)
+    conn.commit()
+    print("executed")
+    return {"result":"sic"}
+
 
 #LINK UPLOAD
 
 class LinkInput(BaseModel):
+    clsid:str
     link:str
     
 
 @app.post("/classlink")
 def Linkinput(Data:LinkInput):
+    global link
     link=Data.link
-    print(link)
-
+   
 
 
 
