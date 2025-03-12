@@ -110,13 +110,14 @@ def receive_avg_score(data: AvgScoreInput):
 
 class eiscore(BaseModel):
     roll_no: str
+    clsid:str
 
 @app.post("/eiscore")
 async def ei_score(data: eiscore):
     cursor = conn.cursor()
     t="table"+data.roll_no
-    query = "SELECT *FROM "+t
-    cursor.execute(query)
+    query = "SELECT time,ei,eng FROM "+t+" where clsid = %s"
+    cursor.execute(query,[data.clsid])
     temp=cursor.fetchall()
     cursor.close()
     print(temp)
